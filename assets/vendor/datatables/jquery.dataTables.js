@@ -1,15 +1,15 @@
-/*! DataTables 1.10.21
- * ©2008-2020 SpryMedia Ltd - datatables.net/license
+/*! DataTables 1.10.19
+ * ©2008-2018 SpryMedia Ltd - datatables.net/license
  */
 
 /**
  * @summary     DataTables
  * @description Paginate, search and order HTML tables
- * @version     1.10.21
+ * @version     1.10.19
  * @file        jquery.dataTables.js
  * @author      SpryMedia Ltd
  * @contact     www.datatables.net
- * @copyright   Copyright 2008-2020 SpryMedia Ltd.
+ * @copyright   Copyright 2008-2018 SpryMedia Ltd.
  *
  * This source file is free software, available under the following license:
  *   MIT license - http://datatables.net/license
@@ -898,7 +898,7 @@
 			_fnCamelToHungarian( defaults.column, defaults.column, true );
 			
 			/* Setting up the initialisation object */
-			_fnCamelToHungarian( defaults, $.extend( oInit, $this.data() ), true );
+			_fnCamelToHungarian( defaults, $.extend( oInit, $this.data() ) );
 			
 			
 			
@@ -1334,7 +1334,7 @@
 	var _api_registerPlural; // DataTable.Api.registerPlural
 	
 	var _re_dic = {};
-	var _re_new_lines = /[\r\n\u2028]/g;
+	var _re_new_lines = /[\r\n]/g;
 	var _re_html = /<.*?>/g;
 	
 	// This is not strict ISO8601 - Date.parse() is quite lax, although
@@ -2024,7 +2024,7 @@
 			_fnCompatCols( oOptions );
 	
 			// Map camel case parameters to their Hungarian counterparts
-			_fnCamelToHungarian( DataTable.defaults.column, oOptions, true );
+			_fnCamelToHungarian( DataTable.defaults.column, oOptions );
 	
 			/* Backwards compatibility for mDataProp */
 			if ( oOptions.mDataProp !== undefined && !oOptions.mData )
@@ -3078,7 +3078,7 @@
 			rowData = row._aData,
 			cells = [],
 			nTr, nTd, oCol,
-			i, iLen, create;
+			i, iLen;
 	
 		if ( row.nTr === null )
 		{
@@ -3099,9 +3099,8 @@
 			for ( i=0, iLen=oSettings.aoColumns.length ; i<iLen ; i++ )
 			{
 				oCol = oSettings.aoColumns[i];
-				create = nTrIn ? false : true;
 	
-				nTd = create ? document.createElement( oCol.sCellType ) : anTds[i];
+				nTd = nTrIn ? anTds[i] : document.createElement( oCol.sCellType );
 				nTd._DT_CellIndex = {
 					row: iRow,
 					column: i
@@ -3110,9 +3109,9 @@
 				cells.push( nTd );
 	
 				// Need to create the HTML if new, or if a rendering function is defined
-				if ( create || ((!nTrIn || oCol.mRender || oCol.mData !== i) &&
+				if ( (!nTrIn || oCol.mRender || oCol.mData !== i) &&
 					 (!$.isPlainObject(oCol.mData) || oCol.mData._ !== i+'.display')
-				)) {
+				) {
 					nTd.innerHTML = _fnGetCellData( oSettings, iRow, i, 'display' );
 				}
 	
@@ -4112,7 +4111,7 @@
 		var recordsTotal    = compat( 'iTotalRecords',        'recordsTotal' );
 		var recordsFiltered = compat( 'iTotalDisplayRecords', 'recordsFiltered' );
 	
-		if ( draw !== undefined ) {
+		if ( draw ) {
 			// Protect against out of sequence returns
 			if ( draw*1 < settings.iDraw ) {
 				return;
@@ -4227,14 +4226,6 @@
 					_fnThrottle( searchFn, searchDelay ) :
 					searchFn
 			)
-			.on( 'mouseup', function(e) {
-				// Edge fix! Edge 17 does not trigger anything other than mouse events when clicking
-				// on the clear icon (Edge bug 17584515). This is safe in other browsers as `searchFn`
-				// checks the value to see if it has changed. In other browsers it won't have.
-				setTimeout( function () {
-					searchFn.call(jqFilter[0]);
-				}, 10);
-			} )
 			.on( 'keypress.DT', function(e) {
 				/* Prevent form submission */
 				if ( e.keyCode == 13 ) {
@@ -4415,7 +4406,6 @@
 			// New search - start from the master array
 			if ( invalidated ||
 				 force ||
-				 regex ||
 				 prevSearch.length > input.length ||
 				 input.indexOf(prevSearch) !== 0 ||
 				 settings.bSorted // On resort, the display master needs to be
@@ -4539,7 +4529,7 @@
 					}
 	
 					if ( cellData.replace ) {
-						cellData = cellData.replace(/[\r\n\u2028]/g, '');
+						cellData = cellData.replace(/[\r\n]/g, '');
 					}
 	
 					filterData.push( cellData );
@@ -5169,10 +5159,10 @@
 			} );
 		}
 	
-		$(scrollBody).css('max-height', scrollY);
-		if (! scroll.bCollapse) {
-			$(scrollBody).css('height', scrollY);
-		}
+		$(scrollBody).css(
+			scrollY && scroll.bCollapse ? 'max-height' : 'height', 
+			scrollY
+		);
 	
 		settings.nScrollHead = scrollHead;
 		settings.nScrollBody = scrollBody;
@@ -5467,7 +5457,7 @@
 		table.children('colgroup').insertBefore( table.children('thead') );
 	
 		/* Adjust the position of the header in case we loose the y-scrollbar */
-		divBody.trigger('scroll');
+		divBody.scroll();
 	
 		// If sorting or filtering has occurred, jump the scrolling back to the top
 		// only if we aren't holding the position
@@ -6420,7 +6410,7 @@
 	
 			_fnCallbackFire( settings, 'aoStateLoaded', 'stateLoaded', [settings, s] );
 			callback();
-		};
+		}
 	
 		if ( ! settings.oFeatures.bStateSave ) {
 			callback();
@@ -6586,7 +6576,7 @@
 	{
 		$(n)
 			.on( 'click.DT', oData, function (e) {
-					$(n).trigger('blur'); // Remove focus outline for mouse users
+					$(n).blur(); // Remove focus outline for mouse users
 					fn(e);
 				} )
 			.on( 'keypress.DT', oData, function (e){
@@ -6900,7 +6890,7 @@
 		var ctxSettings = function ( o ) {
 			var a = _toSettings( o );
 			if ( a ) {
-				settings.push.apply( settings, a );
+				settings = settings.concat( a );
 			}
 		};
 	
@@ -7198,7 +7188,8 @@
 	
 		var
 			i, ien,
-			struct,
+			j, jen,
+			struct, inner,
 			methodScoping = function ( scope, fn, struc ) {
 				return function () {
 					var ret = fn.apply( scope, arguments );
@@ -7213,9 +7204,9 @@
 			struct = ext[i];
 	
 			// Value
-			obj[ struct.name ] = struct.type === 'function' ?
+			obj[ struct.name ] = typeof struct.val === 'function' ?
 				methodScoping( scope, struct.val, struct ) :
-				struct.type === 'object' ?
+				$.isPlainObject( struct.val ) ?
 					{} :
 					struct.val;
 	
@@ -7296,19 +7287,13 @@
 					name:      key,
 					val:       {},
 					methodExt: [],
-					propExt:   [],
-					type:      'object'
+					propExt:   []
 				};
 				struct.push( src );
 			}
 	
 			if ( i === ien-1 ) {
 				src.val = val;
-				src.type = typeof val === 'function' ?
-					'function' :
-					$.isPlainObject( val ) ?
-						'object' :
-						'other';
 			}
 			else {
 				struct = method ?
@@ -7317,6 +7302,7 @@
 			}
 		}
 	};
+	
 	
 	_Api.registerPlural = _api_registerPlural = function ( pluralName, singularName, val ) {
 		_Api.register( pluralName, val );
@@ -7355,12 +7341,6 @@
 	 */
 	var __table_selector = function ( selector, a )
 	{
-		if ( $.isArray(selector) ) {
-			return $.map( selector, function (item) {
-				return __table_selector(item, a);
-			} );
-		}
-	
 		// Integer is used to pick out a table by index
 		if ( typeof selector === 'number' ) {
 			return [ a[ selector ] ];
@@ -7396,7 +7376,7 @@
 	 */
 	_api_register( 'tables()', function ( selector ) {
 		// A new instance is created if there was a selector specified
-		return selector !== undefined && selector !== null ?
+		return selector ?
 			new _Api( __table_selector( selector, this.context ) ) :
 			this;
 	} );
@@ -7936,7 +7916,7 @@
 						[];
 				}
 				else if ( cellIdx ) {
-					return aoData[ cellIdx.row ] && aoData[ cellIdx.row ].nTr === sel.parentNode ?
+					return aoData[ cellIdx.row ] && aoData[ cellIdx.row ].nTr === sel ?
 						[ cellIdx.row ] :
 						[];
 				}
@@ -8170,7 +8150,7 @@
 		row._aData = data;
 	
 		// If the DOM has an id, and the data source is an array
-		if ( $.isArray( data ) && row.nTr && row.nTr.id ) {
+		if ( $.isArray( data ) && row.nTr.id ) {
 			_fnSetObjectDataFn( ctx[0].rowId )( data, row.nTr.id );
 		}
 	
@@ -8595,6 +8575,16 @@
 	
 		// Common actions
 		col.bVisible = vis;
+		_fnDrawHead( settings, settings.aoHeader );
+		_fnDrawHead( settings, settings.aoFooter );
+	
+		// Update colspan for no records display. Child rows and extensions will use their own
+		// listeners to do this - only need to update the empty table item here
+		if ( ! settings.aiDisplay.length ) {
+			$(settings.nTBody).find('td[colspan]').attr('colspan', _fnVisbleColumns(settings));
+		}
+	
+		_fnSaveState( settings );
 	};
 	
 	
@@ -8658,7 +8648,6 @@
 	} );
 	
 	_api_registerPlural( 'columns().visible()', 'column().visible()', function ( vis, calc ) {
-		var that = this;
 		var ret = this.iterator( 'column', function ( settings, column ) {
 			if ( vis === undefined ) {
 				return settings.aoColumns[ column ].bVisible;
@@ -8668,28 +8657,14 @@
 	
 		// Group the column visibility changes
 		if ( vis !== undefined ) {
-			this.iterator( 'table', function ( settings ) {
-				// Redraw the header after changes
-				_fnDrawHead( settings, settings.aoHeader );
-				_fnDrawHead( settings, settings.aoFooter );
-		
-				// Update colspan for no records display. Child rows and extensions will use their own
-				// listeners to do this - only need to update the empty table item here
-				if ( ! settings.aiDisplay.length ) {
-					$(settings.nTBody).find('td[colspan]').attr('colspan', _fnVisbleColumns(settings));
-				}
-		
-				_fnSaveState( settings );
+			// Second loop once the first is done for events
+			this.iterator( 'column', function ( settings, column ) {
+				_fnCallbackFire( settings, null, 'column-visibility', [settings, column, vis, calc] );
+			} );
 	
-				// Second loop once the first is done for events
-				that.iterator( 'column', function ( settings, column ) {
-					_fnCallbackFire( settings, null, 'column-visibility', [settings, column, vis, calc] );
-				} );
-	
-				if ( calc === undefined || calc ) {
-					that.columns.adjust();
-				}
-			});
+			if ( calc === undefined || calc ) {
+				this.columns.adjust();
+			}
 		}
 	
 		return ret;
@@ -8840,20 +8815,13 @@
 			} );
 		}
 	
-		// The default built in options need to apply to row and columns
-		var internalOpts = opts ? {
-			page: opts.page,
-			order: opts.order,
-			search: opts.search
-		} : {};
-	
 		// Row + column selector
-		var columns = this.columns( columnSelector, internalOpts );
-		var rows = this.rows( rowSelector, internalOpts );
-		var i, ien, j, jen;
+		var columns = this.columns( columnSelector );
+		var rows = this.rows( rowSelector );
+		var a, i, ien, j, jen;
 	
-		var cellsNoOpts = this.iterator( 'table', function ( settings, idx ) {
-			var a = [];
+		this.iterator( 'table', function ( settings, idx ) {
+			a = [];
 	
 			for ( i=0, ien=rows[idx].length ; i<ien ; i++ ) {
 				for ( j=0, jen=columns[idx].length ; j<jen ; j++ ) {
@@ -8863,16 +8831,10 @@
 					} );
 				}
 			}
-	
-			return a;
 		}, 1 );
 	
-		// There is currently only one extension which uses a cell selector extension
-		// It is a _major_ performance drag to run this if it isn't needed, so this is
-		// an extension specific check at the moment
-		var cells = opts && opts.selected ?
-			this.cells( cellsNoOpts, opts ) :
-			cellsNoOpts;
+	    // Now pass through the cell selector for options
+	    var cells = this.cells( a, opts );
 	
 		$.extend( cells.selector, {
 			cols: columnSelector,
@@ -9501,7 +9463,7 @@
 	 *  @type string
 	 *  @default Version number
 	 */
-	DataTable.version = "1.10.21";
+	DataTable.version = "1.10.19";
 
 	/**
 	 * Private data store, containing all of the settings objects that are
@@ -11019,9 +10981,7 @@
 						'DataTables_'+settings.sInstance+'_'+location.pathname
 					)
 				);
-			} catch (e) {
-				return {};
-			}
+			} catch (e) {}
 		},
 	
 	
@@ -14566,8 +14526,7 @@
 				var btnDisplay, btnClass, counter=0;
 	
 				var attach = function( container, buttons ) {
-					var i, ien, node, button, tabIndex;
-					var disabledClass = classes.sPageButtonDisabled;
+					var i, ien, node, button;
 					var clickHandler = function ( e ) {
 						_fnPageChange( settings, e.data.action, true );
 					};
@@ -14582,8 +14541,7 @@
 						}
 						else {
 							btnDisplay = null;
-							btnClass = button;
-							tabIndex = settings.iTabIndex;
+							btnClass = '';
 	
 							switch ( button ) {
 								case 'ellipsis':
@@ -14592,38 +14550,26 @@
 	
 								case 'first':
 									btnDisplay = lang.sFirst;
-	
-									if ( page === 0 ) {
-										tabIndex = -1;
-										btnClass += ' ' + disabledClass;
-									}
+									btnClass = button + (page > 0 ?
+										'' : ' '+classes.sPageButtonDisabled);
 									break;
 	
 								case 'previous':
 									btnDisplay = lang.sPrevious;
-	
-									if ( page === 0 ) {
-										tabIndex = -1;
-										btnClass += ' ' + disabledClass;
-									}
+									btnClass = button + (page > 0 ?
+										'' : ' '+classes.sPageButtonDisabled);
 									break;
 	
 								case 'next':
 									btnDisplay = lang.sNext;
-	
-									if ( pages === 0 || page === pages-1 ) {
-										tabIndex = -1;
-										btnClass += ' ' + disabledClass;
-									}
+									btnClass = button + (page < pages-1 ?
+										'' : ' '+classes.sPageButtonDisabled);
 									break;
 	
 								case 'last':
 									btnDisplay = lang.sLast;
-	
-									if ( page === pages-1 ) {
-										tabIndex = -1;
-										btnClass += ' ' + disabledClass;
-									}
+									btnClass = button + (page < pages-1 ?
+										'' : ' '+classes.sPageButtonDisabled);
 									break;
 	
 								default:
@@ -14639,7 +14585,7 @@
 										'aria-controls': settings.sTableId,
 										'aria-label': aria[ button ],
 										'data-dt-idx': counter,
-										'tabindex': tabIndex,
+										'tabindex': settings.iTabIndex,
 										'id': idx === 0 && typeof button === 'string' ?
 											settings.sTableId +'_'+ button :
 											null
@@ -14674,7 +14620,7 @@
 				attach( $(host).empty(), buttons );
 	
 				if ( activeEl !== undefined ) {
-					$(host).find( '[data-dt-idx='+activeEl+']' ).trigger('focus');
+					$(host).find( '[data-dt-idx='+activeEl+']' ).focus();
 				}
 			}
 		}
@@ -14960,11 +14906,7 @@
 	
 	var __htmlEscapeEntities = function ( d ) {
 		return typeof d === 'string' ?
-			d
-				.replace(/&/g, '&amp;')
-				.replace(/</g, '&lt;')
-				.replace(/>/g, '&gt;')
-				.replace(/"/g, '&quot;') :
+			d.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;') :
 			d;
 	};
 	
@@ -15271,7 +15213,7 @@
 
 	/**
 	 * Processing event, fired when DataTables is doing some kind of processing
-	 * (be it, order, search or anything else). It can be used to indicate to
+	 * (be it, order, searcg or anything else). It can be used to indicate to
 	 * the end user that there is something happening, or that something has
 	 * finished.
 	 *  @name DataTable#processing.dt

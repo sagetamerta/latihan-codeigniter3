@@ -4,16 +4,20 @@
     <!-- Page Heading -->
     <h1 class="h3 mb-4 text-gray-800"><?= $title; ?></h1>
 
+
+
     <div class="row">
         <div class="col-lg">
             <?php if (validation_errors()) : ?>
-                <div class="alert alert-danger" role="alert">
-                    <?= validation_errors(); ?>
-                </div>
+            <div class="alert alert-danger" role="alert">
+                <?= validation_errors(); ?>
+            </div>
             <?php endif; ?>
 
-            <?php $this->session->flashdata('message'); ?>
-            <a href="#" class="btn btn-primary mb-3" data-toggle="modal" data-target="#newSubMenuModal">Add New Submenu</a>
+            <?= $this->session->flashdata('message'); ?>
+
+            <a href="" class="btn btn-primary mb-3" data-toggle="modal" data-target="#newSubMenuModal">Add New Submenu</a>
+
             <table class="table table-hover">
                 <thead>
                     <tr>
@@ -29,24 +33,28 @@
                 <tbody>
                     <?php $i = 1; ?>
                     <?php foreach ($subMenu as $sm) : ?>
-                        <tr>
-                            <th scope="row"><?= $i; ?></th>
-                            <td><?= $sm['title']; ?></td>
-                            <td><?= $sm['menu']; ?></td>
-                            <td><?= $sm['url']; ?></td>
-                            <td><?= $sm['icon']; ?></td>
-                            <td><?= $sm['is_active']; ?></td>
-                            <td>
-                                <a href="#" class="badge badge-success">edit</a>
-                                <a href="#" class="badge badge-danger">delete</a>
-                            </td>
-                        </tr>
-                        <?php $i++; ?>
+                    <tr>
+                        <th scope="row"><?= $i; ?></th>
+                        <td><?= $sm['title']; ?></td>
+                        <td><?= $sm['menu']; ?></td>
+                        <td><?= $sm['url']; ?></td>
+                        <td><?= $sm['icon']; ?></td>
+                        <td><?= $sm['is_active']; ?></td>
+                        <td>
+                            <a href="" class="badge badge-success">edit</a>
+                            <a href="" class="badge badge-danger">delete</a>
+                        </td>
+                    </tr>
+                    <?php $i++; ?>
                     <?php endforeach; ?>
                 </tbody>
             </table>
+
+
         </div>
     </div>
+
+
 
 </div>
 <!-- /.container-fluid -->
@@ -55,8 +63,10 @@
 <!-- End of Main Content -->
 
 <!-- Modal -->
-<div class="modal fade" id="newSubMenuModal" tabindex="-1" aria-labelledby="newSubMenuModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+
+<!-- Modal -->
+<div class="modal fade" id="newSubMenuModal" tabindex="-1" role="dialog" aria-labelledby="newSubMenuModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="newSubMenuModalLabel">Add New Sub Menu</h5>
@@ -73,7 +83,7 @@
                         <select name="menu_id" id="menu_id" class="form-control">
                             <option value="">Select Menu</option>
                             <?php foreach ($menu as $m) : ?>
-                                <option value="<?= $m['id']; ?>"><?= $m['menu']; ?></option>
+                            <option value="<?= $m['id']; ?>"><?= $m['menu']; ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
@@ -99,4 +109,4 @@
             </form>
         </div>
     </div>
-</div>
+</div> 
