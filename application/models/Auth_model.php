@@ -50,7 +50,7 @@ class Auth_model extends CI_Model
 
         $this->email->initialize($config);
 
-        $this->email->from('sage7471@gmail.com', 'Saget Amerta');
+        $this->email->from('saget7471@gmail.com', 'Saget Amerta');
         $this->email->to($this->input->post('email'));
 
         if ($type == 'verify') {
